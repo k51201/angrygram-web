@@ -20,11 +20,11 @@ export default function SignInModal({ open, onClose, onSignInSuccess, apiService
         setUsername('')
         
         // Store auth data in localStorage
-        data.accessToken
-          ? window.localStorage.setItem('authToken', data.accessToken)
+        data.access_token
+          ? window.localStorage.setItem('authToken', data.access_token)
           : window.localStorage.removeItem('authToken')
-        data.tokenType
-          ? window.localStorage.setItem('authTokenType', data.tokenType)
+        data.token_type
+          ? window.localStorage.setItem('authTokenType', data.token_type)
           : window.localStorage.removeItem('authTokenType')
         data.username
           ? window.localStorage.setItem('username', data.username)
@@ -33,8 +33,8 @@ export default function SignInModal({ open, onClose, onSignInSuccess, apiService
         // Notify parent component of successful sign in
         if (onSignInSuccess) {
           onSignInSuccess({
-            accessToken: data.accessToken,
-            tokenType: data.tokenType,
+            accessToken: data.access_token,
+            tokenType: data.token_type,
             username: data.username
           })
         }

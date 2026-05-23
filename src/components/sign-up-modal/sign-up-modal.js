@@ -25,12 +25,12 @@ export default function SignUpModal({ open, onClose, onSignUpSuccess, apiService
         return apiService.login(username, password)
       })
       .then(data => {
-        // Store auth data in localStorage
-        data.accessToken
-          ? window.localStorage.setItem('authToken', data.accessToken)
+        // TODO: Use cookies for token storage instead of localStorage
+        data.access_token
+          ? window.localStorage.setItem('authToken', data.access_token)
           : window.localStorage.removeItem('authToken')
-        data.tokenType
-          ? window.localStorage.setItem('authTokenType', data.tokenType)
+        data.token_type
+          ? window.localStorage.setItem('authTokenType', data.token_type)
           : window.localStorage.removeItem('authTokenType')
         data.username
           ? window.localStorage.setItem('username', data.username)
@@ -39,8 +39,8 @@ export default function SignUpModal({ open, onClose, onSignUpSuccess, apiService
         // Notify parent component of successful sign up and auto-login
         if (onSignUpSuccess) {
           onSignUpSuccess({
-            accessToken: data.accessToken,
-            tokenType: data.tokenType,
+            accessToken: data.access_token,
+            tokenType: data.token_type,
             username: data.username
           })
         }
