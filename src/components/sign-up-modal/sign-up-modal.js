@@ -1,24 +1,30 @@
 import { useState } from 'react'
 import { Button, Input, Modal } from '@mui/material'
 import { getModalStyle, ModalPaper } from '../../utils/modal-styles'
-import './sign-in-modal.css'
+import './sign-up-modal.css'
 
 const BASE_URL = 'http://192.168.1.107:8000/'
 
-export default function SignInModal({ open, onClose, onSignInSuccess, apiService }) {
+export default function SignUpModal({ open, onClose, onSignUpSuccess, apiService }) {
   const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [modalStyle] = useState(getModalStyle)
 
-  const onSignIn = (event) => {
+  const onSignUp = (event) => {
     event.preventDefault()
 
-    apiService.login(username, password)
+    apiService.signUp(username, email, password)
       .then(data => {
         onClose()
+        setEmail('')
         setPassword('')
         setUsername('')
         
+        // After successful signup, automatically sign in
+        return apiService.login(username, password)
+      })
+      .then(data => {
         // Store auth data in localStorage
         data.accessToken
           ? window.localStorage.setItem('authToken', data.accessToken)
@@ -30,9 +36,9 @@ export default function SignInModal({ open, onClose, onSignInSuccess, apiService
           ? window.localStorage.setItem('username', data.username)
           : window.localStorage.removeItem('username')
         
-        // Notify parent component of successful sign in
-        if (onSignInSuccess) {
-          onSignInSuccess({
+        // Notify parent component of successful sign up and auto-login
+        if (onSignUpSuccess) {
+          onSignUpSuccess({
             accessToken: data.accessToken,
             tokenType: data.tokenType,
             username: data.username
@@ -56,12 +62,18 @@ export default function SignInModal({ open, onClose, onSignInSuccess, apiService
             onChange={(e) => setUsername(e.target.value)}
           />
           <Input
+            type="text"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <Input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <Button type="submit" onClick={onSignIn}>Login</Button>
+          <Button type="submit" onClick={onSignUp}>Sign Up</Button>
         </form>
       </ModalPaper>
     </Modal>

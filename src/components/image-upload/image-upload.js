@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { Button, Input } from '@mui/material'
 import './image-upload.css'
 
-const BASE_URL = 'http://localhost:8000/'
+const BASE_URL = 'http://192.168.1.107:8000/'
 
-const ImageUpload = ( authToken, authTokenType, apiService ) => {
+const ImageUpload = ({ authToken, authTokenType, apiService }) => {
     const [caption, setCaption] = useState('')
     const [image, setImage] = useState(null)
 
@@ -17,22 +17,7 @@ const ImageUpload = ( authToken, authTokenType, apiService ) => {
     const handleUpload = (event) => {
         event.preventDefault()
 
-        const formData = new FormData()
-        formData.append('image', image)
-
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                'Authorization': `${authTokenType} ${authToken}`,
-            },
-            body: formData
-        }
-
-        fetch(BASE_URL + 'api/v1/post/image', requestOptions)
-            .then(res => {
-                if (res.ok) return res.json()
-                else throw new Error('Image upload failed')
-            })
+        apiService.postImage(authToken, authTokenType, image)
             .then(data => {
                 createPost(data.imageUrl)
             })
@@ -45,26 +30,7 @@ const ImageUpload = ( authToken, authTokenType, apiService ) => {
     }
 
     const createPost = (imageUrl) => {
-        const postJson = JSON.stringify({
-            imageUrl: imageUrl,
-            imageUrlType: 'relative',
-            caption: caption,
-        })
-
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `${authTokenType} ${authToken}`,
-            },
-            body: postJson
-        }
-
-        fetch(BASE_URL + 'api/v1/post', requestOptions)
-            .then(res => {
-                if (res.ok) return res.json()
-                else throw new Error('Post creation failed')
-            })
+        apiService.createPost(authToken, authTokenType, imageUrl, caption)
             .then(data => {
                 window.location.reload()
                 window.scrollTo(0, 0)

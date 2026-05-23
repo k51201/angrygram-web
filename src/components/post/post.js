@@ -3,9 +3,9 @@ import { Avatar, Button } from '@mui/material'
 
 import './post.css'
 
-const BASE_URL = 'http://localhost:8000/'
+const BASE_URL = 'http://192.168.1.107:8000/'
 
-const Post = ({ post, authToken, authTokenType }) => {
+const Post = ({ post, authToken, authTokenType, apiService }) => {
     const [imageUrl, setImageUrl] = useState('')
     const [comments, setComments] = useState([])
     const [commentText, setCommentText] = useState('')
@@ -25,17 +25,9 @@ const Post = ({ post, authToken, authTokenType }) => {
     const handleDelete = (event) => {
         event.preventDefault()
 
-        const requestOptions = {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `${authTokenType} ${authToken}`,
-            },
-        }
-
-        fetch(BASE_URL + 'api/v1/post/' + post.id, requestOptions)
-            .then(res => {
-                if (res.ok) window.location.reload()
-                else throw new Error('Post deletion failed')
+        apiService.deletePost(authToken, authTokenType, post.id)
+            .then(success => {
+                if (success) window.location.reload()
             })
             .catch(err => console.log(err))
     }
@@ -43,25 +35,7 @@ const Post = ({ post, authToken, authTokenType }) => {
     const postComment = (event) => {
         event.preventDefault()
 
-        const commentJson = JSON.stringify({
-            text: commentText,
-            postId: post.id,
-        })
-
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `${authTokenType} ${authToken}`,
-            },
-            body: commentJson
-        }
-
-        fetch(BASE_URL + 'api/v1/post/' + post.id + '/comment', requestOptions)
-            .then(res => {
-                if (res.ok) return res.json()
-                else throw new Error('Comment posting failed')
-            })
+        apiService.postComment(authToken, authTokenType, post.id, commentText)
             .then(data => {
                 // setComments([...comments, data])
                 setCommentText('')
@@ -72,18 +46,7 @@ const Post = ({ post, authToken, authTokenType }) => {
     }
 
     const fetchComments = () => {
-        const requestOptions = {
-            method: 'GET',
-            headers: {
-                'Authorization': `${authTokenType} ${authToken}`,
-            },
-        }
-
-        fetch(BASE_URL + 'api/v1/post/' + post.id + '/comment', requestOptions)
-            .then(res => {
-                if (res.ok) return res.json()
-                else throw new Error('Failed to fetch comments')
-            })
+        apiService.getComments(authToken, authTokenType, post.id)
             .then(data => setComments(data))
             .catch(err => console.log(err))
     }
